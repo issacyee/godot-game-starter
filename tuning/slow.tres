@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="StarterTuning" format=3 uid="uid://dibskotm4oabi"]
+
+[ext_resource type="Script" uid="uid://irb6jfiabrp7" path="res://scripts/starter_tuning.gd" id="1_k52s8"]
+
+[resource]
+script = ExtResource("1_k52s8")
+move_speed = 2.0

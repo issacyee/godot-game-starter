@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="StarterTuning" format=3 uid="uid://efuucjj6p0vh"]
+
+[ext_resource type="Script" uid="uid://irb6jfiabrp7" path="res://scripts/starter_tuning.gd" id="1_q6k3b"]
+
+[resource]
+script = ExtResource("1_q6k3b")

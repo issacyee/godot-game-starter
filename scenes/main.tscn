@@ -1,0 +1,132 @@
+[gd_scene format=3 uid="uid://brykx2o6cgerb"]
+
+[ext_resource type="Script" uid="uid://o7ybb7h24jmg" path="res://scripts/main.gd" id="1_sugp2"]
+[ext_resource type="Resource" uid="uid://efuucjj6p0vh" path="res://tuning/baseline.tres" id="2_jyhfs"]
+[ext_resource type="Script" uid="uid://ck0m2m08lxf0p" path="res://scripts/player.gd" id="3_tbgi4"]
+[ext_resource type="Theme" uid="uid://is1naqaofqov" path="res://assets/interface.tres" id="4_jyhfs"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tefeu"]
+albedo_color = Color(0.21960784, 0.7411765, 0.972549, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_o6xl0"]
+material = SubResource("StandardMaterial3D_tefeu")
+size = Vector3(0.7, 1, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tipki"]
+size = Vector3(0.7, 1, 0.7)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_85g3d"]
+albedo_color = Color(0.2, 0.25490198, 0.33333334, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_choun"]
+material = SubResource("StandardMaterial3D_85g3d")
+size = Vector3(12, 0.2, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ya4ey"]
+albedo_color = Color(0.9843137, 0.7490196, 0.14117648, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_eb6dy"]
+material = SubResource("StandardMaterial3D_ya4ey")
+size = Vector3(0.7, 1, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trceg"]
+size = Vector3(0.2, 2, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_a8y0u"]
+size = Vector3(0.2, 2, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jkv2x"]
+size = Vector3(12, 2, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jbj1t"]
+size = Vector3(12, 2, 0.2)
+
+[node name="Main" type="Node3D" unique_id=1013329785]
+script = ExtResource("1_sugp2")
+tuning = ExtResource("2_jyhfs")
+
+[node name="World" type="Node3D" parent="." unique_id=1259804451]
+
+[node name="Player" type="CharacterBody3D" parent="World" unique_id=618240431]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+script = ExtResource("3_tbgi4")
+
+[node name="Body" type="MeshInstance3D" parent="World/Player" unique_id=1327948772]
+mesh = SubResource("BoxMesh_o6xl0")
+
+[node name="Collider" type="CollisionShape3D" parent="World/Player" unique_id=433184104]
+shape = SubResource("BoxShape3D_tipki")
+
+[node name="Floor" type="MeshInstance3D" parent="World" unique_id=2089021903]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("BoxMesh_choun")
+
+[node name="Target" type="MeshInstance3D" parent="World" unique_id=1867689638]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.5, 0)
+mesh = SubResource("BoxMesh_eb6dy")
+
+[node name="Left" type="StaticBody3D" parent="World" unique_id=274159810]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.5, 0)
+
+[node name="Collider" type="CollisionShape3D" parent="World/Left" unique_id=1513096224]
+shape = SubResource("BoxShape3D_trceg")
+
+[node name="Right" type="StaticBody3D" parent="World" unique_id=1757780484]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, 0)
+
+[node name="Collider" type="CollisionShape3D" parent="World/Right" unique_id=920289125]
+shape = SubResource("BoxShape3D_a8y0u")
+
+[node name="Front" type="StaticBody3D" parent="World" unique_id=1444590002]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -5)
+
+[node name="Collider" type="CollisionShape3D" parent="World/Front" unique_id=437892410]
+shape = SubResource("BoxShape3D_jkv2x")
+
+[node name="Back" type="StaticBody3D" parent="World" unique_id=1686513504]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 5)
+
+[node name="Collider" type="CollisionShape3D" parent="World/Back" unique_id=1582189438]
+shape = SubResource("BoxShape3D_jbj1t")
+
+[node name="Sun" type="DirectionalLight3D" parent="World" unique_id=1917356933]
+transform = Transform3D(0.8660254, 0.43301272, -0.24999999, 0, 0.49999997, 0.86602545, 0.5, -0.75, 0.43301266, 0, 0, 0)
+
+[node name="Camera" type="Camera3D" parent="World" unique_id=2016855821]
+transform = Transform3D(1, 0, 0, 0, 0.7808667, 0.6246977, 0, -0.6246977, 0.7808667, 0, 8, 10)
+current = true
+
+[node name="Interface" type="CanvasLayer" parent="." unique_id=847575813]
+
+[node name="Panel" type="PanelContainer" parent="Interface" unique_id=1855598898]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 650.0
+offset_bottom = 220.0
+theme = ExtResource("4_jyhfs")
+
+[node name="Rows" type="VBoxContainer" parent="Interface/Panel" unique_id=1437168323]
+layout_mode = 2
+
+[node name="Status" type="Label" parent="Interface/Panel/Rows" unique_id=156068987]
+layout_mode = 2
+text = "Godot 3D 起步模板"
+
+[node name="Start" type="Button" parent="Interface/Panel/Rows" unique_id=158453635]
+layout_mode = 2
+focus_mode = 0
+text = "进入（Enter）"
+
+[node name="Pause" type="Button" parent="Interface/Panel/Rows" unique_id=393946699]
+layout_mode = 2
+focus_mode = 0
+text = "暂停（Esc）"
+
+[node name="Restart" type="Button" parent="Interface/Panel/Rows" unique_id=547630380]
+layout_mode = 2
+focus_mode = 0
+text = "重开（R）"
+
+[connection signal="pressed" from="Interface/Panel/Rows/Start" to="." method="_on_start_pressed"]
+[connection signal="pressed" from="Interface/Panel/Rows/Pause" to="." method="_on_pause_pressed"]
+[connection signal="pressed" from="Interface/Panel/Rows/Restart" to="." method="_on_restart_pressed"]

@@ -1,0 +1,1 @@
+{"http_port":8000,"ws_port":9500,"exclude_domains":["testing"],"telemetry":false}

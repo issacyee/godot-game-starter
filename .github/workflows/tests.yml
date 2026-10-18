@@ -1,0 +1,34 @@
+name: GdUnit4 无设备测试
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: 获取锁定的标准引擎并验证发行哈希
+        shell: pwsh
+        run: |
+          $url = 'https://github.com/godotengine/godot-builds/releases/download/4.7-stable/'
+          $directory = Join-Path $env:RUNNER_TEMP 'starter-engine'
+          New-Item -ItemType Directory $directory | Out-Null
+          $archive = Join-Path $directory 'engine.zip'
+          Invoke-WebRequest ($url + 'Godot_v4.7-stable_win64.exe.zip') -OutFile $archive
+          $expected = (Get-Content dependencies.lock.json | ConvertFrom-Json).godot.editor_zip_sha512
+          if (!$expected -or (Get-FileHash $archive -Algorithm SHA512).Hash.ToLower() -ne $expected) { throw '引擎校验失败' }
+          Expand-Archive $archive (Join-Path $directory 'engine')
+          "STARTER_GODOT=$directory/engine/Godot_v4.7-stable_win64_console.exe" >> $env:GITHUB_ENV
+      - name: 独立进程测试与失败判定自证
+        run: |
+          python tools/dev.py test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/dev.py negative
+      - name: 保存证据（不将托管配置存在当作通过）
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gdunit-evidence
+          path: artifacts/
+          retention-days: 7

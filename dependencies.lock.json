@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "godot": {"version":"4.7.stable.official.5b4e0cb0f","flavor":"standard","release":"https://github.com/godotengine/godot-builds/releases/tag/4.7-stable","templates_sha256":"9714459dc071907c0f3d5f17d608faf69e7cda21331fc5d39c4503ffa4e99eec","windows_debug_sha256":"6b580a72cca9c31922ff4f7f1519a42debdd856e6852eec39ae46ce0e709231d","windows_release_sha256":"c42eb5d17f683eb8bcd52c19a9f36ebf811b1788623878d5276a7d9ffc09f95c","editor_zip_sha512":"41645a908eb3181d6f2d1201ed7b6d6f095f6a23aaed8903d5d255277cc8d142814f3e6817f865b3cac142c39b8aff99280091d3bbdaa301517730b3ba0522b9"},
+  "godot_ai": {"version":"4.3.0","commit":"b82b5c519b1b17228f70d8effce1626f391bd1dd","archive_sha256":"dbc3d16e1aa7a5f3ae8038a150bf4191162112f4329c79611aa6f656e3ca4e58","exclude_domains":["testing"],"telemetry":false,"release":"https://github.com/hi-godot/godot-ai/releases/tag/v4.3.0"},
+  "gdunit4": {"version":"6.2.2","commit":"0127a55f4543dfc24746f6e5c7ba6f94105d51f2","archive_sha256":"ddb44730ffb9cd77fd70d283753450759b00c5016143d7572bf63625f64d5433","release":"https://github.com/godot-gdunit-labs/gdUnit4/releases/tag/v6.2.2","omitted":["addons/gdUnit4/src/dotnet/GdUnit4CSharpApi.cs"]}
+}
