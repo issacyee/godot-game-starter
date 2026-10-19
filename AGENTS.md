@@ -1,13 +1,13 @@
 # AI 工作入口
 
-这是独立的 Godot 4.7／静态类型 GDScript 小型 3D 起点，不是完整游戏或公共运行时框架。先读 [README](README.md)、[简报](docs/BRIEF.md)、[能力](docs/CAPABILITIES.md)、[范围与限制](docs/STATUS.md) 和 [契约](docs/CONTRACTS.md)。事实与缺口不以文档存在代替。通用开发方法见 [文档导航](docs/README.md)、[工作流](docs/workflow.md)、[架构](docs/guides/game-architecture.md) 与 [编码指南](docs/guides/clean-code.md)；新游戏按 [阶段路径](docs/deriving-a-game.md) 推进。
+这是独立的 Godot 4.7／静态类型 GDScript 2D／3D 双路线起点，默认体验 2D，不是完整游戏或公共运行时框架。先读 [README](README.md)、[简报](docs/BRIEF.md)、[能力](docs/CAPABILITIES.md)、[范围与限制](docs/STATUS.md) 和 [契约](docs/CONTRACTS.md)。事实与缺口不以文档存在代替。通用开发方法见 [文档导航](docs/README.md)、[工作流](docs/workflow.md)、[架构](docs/guides/game-architecture.md) 与 [编码指南](docs/guides/clean-code.md)；新游戏按 [阶段路径](docs/deriving-a-game.md) 推进。
 
 ## 工作顺序
 
-1. 检查 Git 与未保存编辑器状态，先读实现／测试／引用；保留人工修改。
+1. 检查 Git 与未保存编辑器状态，先读实现／测试／引用；保留人工修改。派生游戏先与设计者确认 2D 或 3D，按 [路线选择](docs/ROUTES.md) 登记 `starter-project.json`、主场景和简报；未决时不能默认代选后开始玩法实现。模板维护双路线，派生后只维护所选一路，不自动删除另一条文件。
 2. 写清范围、状态所有权、请求／结果／事件、拒绝与恢复、参数时机和验证；只给模块及跨模块语义立契约，不给每个私有函数造文档。
 3. 规则与测试→实际场景→独立进程 GdUnit4→实际导出包。缺陷先建立失败回归。不要先堆文档。
-4. 重要规则使用 RefCounted 并可在 Godot 无头环境测试；GDScript **仍运行于 Godot**，不是脱离引擎。位置归 CharacterBody3D；禁止再复制纯规则物理。规则与 UI 不维护第二份真值；表现只接收值视图和显示节点，重复呈现不推进规则、物理或生命周期。引擎负责时间调度、导入、UI、渲染、导航、物理和文本整形。
+4. 重要规则使用 RefCounted 并可在 Godot 无头环境测试；GDScript **仍运行于 Godot**，不是脱离引擎。位置归所选路线的 CharacterBody2D／CharacterBody3D；禁止再复制纯规则物理。规则与 UI 不维护第二份真值；表现只接收值视图和显示节点，重复呈现不推进规则、物理或生命周期。引擎负责时间调度、导入、UI、渲染、导航、物理和文本整形。
 5. 不默认引入 ECS、服务容器、全局事件总线、对象池或跨游戏插件框架。共享定义 Resource 不充当实例状态。默认 UI 使用 Godot 内置字体，不随模板添加字体文件或字体下载／剪裁工具；出现明确美术／字形需求再选择。调参只从 [tuning](tuning/README.md) 发现。
 6. 测试唯一主框架是 GdUnit4。禁止 McpTestSuite、Godot AI `test_run`／`test_manage`。插件启动排除项合并 `testing`；必须实际查询工具列表。正式测试来自新进程报告，不用编辑器缓存结论。
 7. 代码改动运行 `python tools/dev.py test`、`negative`、`export` 后用 `verify <目录>` 只读复核；纯文档改动检查链接与一致性并报告未运行项。报告失败、过期、必需跳过、零测试、缺证据都不能完成。不重试刷绿、不删除断言或调大容差。截图与性能测量分开，无头不证明像素／音频／GPU，模拟输入不证明 OS 输入。

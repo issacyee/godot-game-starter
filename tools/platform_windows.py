@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import time
 from dev import isolated_env, write_json
+from routes import ROUTES, validate_sample
 
 user32 = ctypes.WinDLL("user32", use_last_error=True) if os.name == "nt" else None
 
@@ -45,7 +46,10 @@ def key(vk: int, down: bool) -> None:
         raise RuntimeError("OS SendInput 失败；需要交互桌面")
 
 
-def validate_platform(report: dict) -> None:
+def validate_platform(report: dict, route: str) -> None:
+    spec = ROUTES[route]
+    if report.get("route") != route:
+        raise RuntimeError("平台报告路线不符")
     required = {"title", "start", "move", "interact", "pause", "continue", "restart-0", "restart-1", "restart-2"}
     actions = report["actions"]
     if {a["id"] for a in actions} != required or len(actions) != len(required) or report["exit_code"] != 0:
@@ -53,7 +57,8 @@ def validate_platform(report: dict) -> None:
     by_id = {a["id"]: a["state"] for a in actions}
     if by_id["title"]["state"]["running"] or not by_id["start"]["state"]["running"]:
         raise RuntimeError("标题／进入状态错误")
-    if not 1.8 <= by_id["move"]["position"][0] < 4.0 or by_id["move"]["state"]["activated"]:
+    low, high = spec["move_range"]
+    if not low <= by_id["move"]["position"][0] < high or by_id["move"]["state"]["activated"]:
         raise RuntimeError("OS 移动结果错误")
     if not by_id["interact"]["state"]["activated"] or not by_id["pause"]["state"]["paused"] or by_id["continue"]["state"]["paused"]:
         raise RuntimeError("交互／暂停／继续结果错误")
@@ -68,15 +73,14 @@ def validate_platform(report: dict) -> None:
         if state["sequence"] <= previous:
             raise RuntimeError("平台证据序号未递增")
         previous = state["sequence"]
-        if state["parameters"] != {"diagnostic_capacity":32,"direction_deadzone":0.15,"interaction_reach":1.5,"move_speed":4.0,"text_size":22}:
-            raise RuntimeError("实际有效参数与已验证基线不符")
-        if state["parameter_source"] != "res://tuning/baseline.tres":
-            raise RuntimeError("参数来源不符")
-        if action["id"].startswith("restart-") and (state["position"] != [0,0.5,0] or state["state"]["activated"] or state["state"]["paused"]):
+        validate_sample(state, route)
+        if action["id"].startswith("restart-") and (state["position"] != spec["origin"] or state["state"]["activated"] or state["state"]["paused"]):
             raise RuntimeError("重开未清理旧局")
 
 
-def exercise(exe: Path, out: Path) -> dict:
+def exercise(exe: Path, out: Path, route: str) -> dict:
+    spec = ROUTES[route]
+    low, high = spec["move_range"]
     if os.name != "nt":
         raise RuntimeError("当前真实输入适配器只支持 Windows 交互桌面")
     out.mkdir()
@@ -152,7 +156,7 @@ def exercise(exe: Path, out: Path) -> dict:
         capture(1)
         record("start", state)
         key(0x44, True); held.add(0x44)
-        state = wait_state(state_file, lambda s: 1.8 <= s["position"][0] < 4.0)
+        state = wait_state(state_file, lambda s: low <= s["position"][0] < high)
         key(0x44, False); held.remove(0x44)
         record("move", state)
         press(13)
@@ -175,15 +179,15 @@ def exercise(exe: Path, out: Path) -> dict:
             press(27)
             wait_state(state_file, lambda s: s["state"]["paused"])
             press(0x52)
-            state = wait_state(state_file, lambda s: not s["state"]["paused"] and not s["state"]["activated"] and s["position"] == [0, 0.5, 0])
+            state = wait_state(state_file, lambda s: not s["state"]["paused"] and not s["state"]["activated"] and s["position"] == spec["origin"])
             record(f"restart-{index}", state)
         # 正常关闭，不把强杀当退出验收。
         user32.PostMessageW(hwnd, 0x0010, 0, 0)
         code = proc.wait(timeout=8)
         if code != 0:
             raise RuntimeError(f"产物异常退出: {code}")
-        report = {"passed": True, "input": "Windows SendInput", "actions": actions, "pause_observation": [paused, later], "exit_code": code}
-        validate_platform(report)
+        report = {"passed": True, "route": route, "input": "Windows SendInput", "actions": actions, "pause_observation": [paused, later], "exit_code": code}
+        validate_platform(report, route)
         write_json(out / "platform.json", report)
         return report
     finally:

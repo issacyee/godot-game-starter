@@ -29,8 +29,9 @@ async def main():
                 listing = await session.call_tool("session_manage", {"op": "list"})
                 sessions = (listing.structured_content or {}).get("sessions", [])
                 matching = [s for s in sessions if Path(s["project_path"]).resolve() == ROOT]
-                if len(matching) != 1:
-                    raise RuntimeError("目标项目会话缺失或不唯一；请检查 editor_state/session_manage，不自动重试")
+                selected = params.get("session_id", "")
+                if len(matching) != 1 or (selected and selected != matching[0]["session_id"]):
+                    raise RuntimeError("目标项目会话缺失、不唯一或与固定 session_id 不符；不自动重试")
                 params["session_id"] = matching[0]["session_id"]
                 if sys.argv[1] in ["test_run", "test_manage"]:
                     raise RuntimeError("唯一测试入口是独立进程 GdUnit4")

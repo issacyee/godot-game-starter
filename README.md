@@ -1,8 +1,10 @@
 # Godot 游戏起步模板
 
-面向小团队的小型 3D 项目起点，使用 Godot 4.7 和静态类型 GDScript。游戏运行不依赖 Python、Node 或 .NET。
+面向小团队的 2D／3D 双路线项目起点，**默认运行 2D 示例，派生游戏开始前必须明确选择一路**。使用 Godot 4.7 和静态类型 GDScript，游戏运行不依赖 Python、Node 或 .NET。
 
 ## 示例体验
+
+2D 俯视示例：`scenes/main_2d.tscn`（默认）；3D 场地示例：`scenes/main.tscn`。两者独立场景、物理和空间参数，共享适用的规则与工具；入口和派生步骤见 [路线选择](docs/ROUTES.md)。
 
 进入 → WASD／方向键移动 → 靠近金色目标按 Enter 激活 → Esc 暂停／继续 → R 重开。UI 提供相同操作，关闭窗口退出。
 
@@ -25,7 +27,8 @@
 
 ```powershell
 $env:STARTER_GODOT = '<Godot 标准版 console.exe 的绝对路径>'
-python tools/dev.py run
+python tools/dev.py run             # 默认 2D
+python tools/dev.py run --route 3d   # 体验 3D，不改默认入口或派生选择
 ```
 
 也可用该引擎直接打开 `project.godot`。`STARTER_GODOT` 优先于可选的 `.tools/local.json`（格式：`{"godot":"引擎绝对路径"}`）；工具不读取 `GODOT_PATH`，避免误用其他版本。
@@ -49,12 +52,12 @@ $delivery = (Get-Content artifacts/latest-export.json | ConvertFrom-Json).direct
 python tools/dev.py verify $delivery
 ```
 
-- `test`：新 Godot 进程运行 unit／scene 测试，不需要 Godot AI、网络或打开的编辑器。
-- `negative`：验证断言、解析、挂起、零测试和报告故障等情况会被拒绝。
+- `test`：新 Godot 进程运行公共 unit／scene 及所选路线场景测试；模板验证双路线，不需要 Godot AI、网络或打开的编辑器。
+- `negative`：验证断言、解析、挂起、零测试、报告故障、未知路线及采样错配等情况会被拒绝。
 - `export`：要求 Godot AI 编辑器已连接；依次执行接入检查、测试、负向检查、实际导出、Windows 键盘和局部像素检查。**需要交互桌面，会暂时聚焦游戏窗口，请勿同时操作。**
 - `verify`：只读复核当前源码和完整 export 目录。源码变化后需重新导出，不能沿用旧报告。
 
-产物在 `artifacts/` 的独立目录，失败记录不覆盖。`latest-export.json` 仅用于定位；包内 `package/starter.exe`、`.pck` 和 `licenses/` 应一起保留。当前只生成未签名 dev 包。
+产物在 `artifacts/` 的独立目录，失败记录不覆盖。`starter-project.json` 为 `template` 时导出并验收两条路线；派生为 `2d`／`3d` 后只验收所选路线。`latest-export.json` 仅用于定位；2D 包在 `package/`，3D 包在 `package-3d/`，各自的 `starter.exe`、`.pck`、构建身份和 `licenses/` 应一起保留。当前只生成未签名 dev 包。
 
 ## Godot AI
 
@@ -69,7 +72,7 @@ python tools/dev.py verify $delivery
 
 ## 用作新项目
 
-保留源码、插件、资源和许可，不复制 `.tools/`、`.godot/`、`artifacts/`。修改应用名与用户目录，更新简报，替换示例玩法并重新验证。具体修改入口见 [模板定制](docs/CUSTOMIZATION.md)，从目标到交付的阶段路径见 [从零构建游戏](docs/deriving-a-game.md)。
+保留源码、插件、资源和许可，不复制 `.tools/`、`.godot/`、`artifacts/`。**先确认开发 2D 还是 3D**，按 [路线选择](docs/ROUTES.md) 登记 `starter-project.json`、设置主场景并写入简报；再修改应用名与用户目录，沿所选路线替换示例玩法并重新验证。默认体验不代表已替派生游戏确认路线，另一条路线不必继续适配，也不自动删除文件。具体修改入口见 [模板定制](docs/CUSTOMIZATION.md)，阶段路径见 [从零构建游戏](docs/deriving-a-game.md)。
 
 ## 开发文档
 

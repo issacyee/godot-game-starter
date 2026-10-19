@@ -16,6 +16,8 @@ import xml.etree.ElementTree as ET
 sys.stdout.reconfigure(encoding="utf-8")
 sys.stderr.reconfigure(encoding="utf-8")
 
+from routes import ROUTES, configured_routes
+
 ROOT = Path(__file__).resolve().parents[1]
 IGNORED = {".git", ".godot", ".tools", "artifacts", "reports", "__pycache__"}
 
@@ -109,8 +111,9 @@ def validate_report(report_dir: Path, started: float, expected: set[str], code: 
             "report": str(reports[0]), "sha256": hashlib.sha256(reports[0].read_bytes()).hexdigest()}
 
 
-def stage_project(destination: Path) -> None:
+def stage_project(destination: Path, route: str | None = None) -> None:
     destination.mkdir()
+    shutil.copy2(ROOT / "starter-project.json", destination / "starter-project.json")
     for folder in ["scripts", "scenes", "tuning", "assets", "tests"]:
         shutil.copytree(ROOT / folder, destination / folder)
     shutil.copytree(ROOT / "addons/gdUnit4", destination / "addons/gdUnit4")
@@ -118,12 +121,25 @@ def stage_project(destination: Path) -> None:
     project = (ROOT / "project.godot").read_text(encoding="utf8")
     project = re.sub(r'^_mcp_game_helper=.*\n', '', project, flags=re.M)
     project = re.sub(r'^enabled=PackedStringArray\(.*\)', 'enabled=PackedStringArray()', project, flags=re.M)
+    if route is not None:
+        project = re.sub(r'^run/main_scene=.*$', f'run/main_scene="{ROUTES[route]["scene"]}"', project, flags=re.M)
     (destination / "project.godot").write_text(project, encoding="utf8")
+
+
+def selected_test_files(project: Path, layer: str) -> list[Path]:
+    paths = sorted((project / "tests" / layer).glob("*.gd"))
+    routes = configured_routes(project)
+    excluded = {"main_scene_test.gd": "3d", "main_2d_scene_test.gd": "2d"}
+    if layer == "scene":
+        required = {name for name, route in excluded.items() if route in routes} | {"project_route_test.gd"}
+        if not required <= {p.name for p in paths}:
+            raise RuntimeError("所选路线缺少必需场景测试")
+    return [p for p in paths if layer != "scene" or p.name not in excluded or excluded[p.name] in routes]
 
 
 def required_tests(project: Path, layer: str) -> set[str]:
     expected = set()
-    for path in (project / "tests" / layer).glob("*.gd"):
+    for path in selected_test_files(project, layer):
         for name in re.findall(r'^func (test_\w+)\(', path.read_text(encoding="utf8"), re.M):
             expected.add(f"{path.stem}:{name}")
     return expected
@@ -134,8 +150,13 @@ def run_layer(project: Path, layer: str, out: Path, godot: str, timeout: float =
     env = isolated_env(out / "profile")
     expected = required_tests(project, layer)
     started = time.time()
+    files = selected_test_files(project, layer)
+    selection = [arg for path in files for arg in ["-a", "res://" + path.relative_to(project).as_posix()]]
+    # 空目录仍调用真实运行器，使零测试拒绝路径可验证。
+    if not selection:
+        selection = ["-a", f"res://tests/{layer}"]
     code = execute([godot, "--headless", "--path", str(project), "-s", "addons/gdUnit4/bin/GdUnitCmdTool.gd",
-                    "-a", f"res://tests/{layer}", "-c", "--ignoreHeadlessMode", "-rd", str(out / "reports")], out / "process.log", env, timeout)
+                    *selection, "-c", "--ignoreHeadlessMode", "-rd", str(out / "reports")], out / "process.log", env, timeout)
     result = validate_report(out / "reports", started, expected, code, out / "process.log")
     result["expected"] = sorted(expected)
     result["elapsed_seconds"] = time.time() - started
@@ -163,11 +184,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="项目内统一验证入口")
     parser.add_argument("command", choices=["test", "negative", "editor", "run", "export", "verify"])
     parser.add_argument("path", nargs="?")
+    parser.add_argument("--route", choices=ROUTES, help="仅 run：体验指定路线，不修改项目默认入口")
     args = parser.parse_args()
+    if args.route is not None and args.command != "run":
+        parser.error("--route 仅用于 run；test/export 范围来自 starter-project.json")
     if args.command == "verify":
         from delivery import verify
         verify(Path(args.path).resolve())
         return
+    routes = configured_routes(ROOT)
     godot = engine()
     if args.command in ["editor", "run"]:
         env = isolated_env(ROOT / ".tools/profile")
@@ -179,12 +204,13 @@ def main() -> None:
                 raise RuntimeError("首次导入失败，请查看 .tools/first-import.log")
         log_path = ROOT / ".tools" / f"{args.command}.log"
         with log_path.open("w", encoding="utf8") as log:
-            subprocess.Popen([godot, "--path", str(ROOT), *(["--editor"] if args.command == "editor" else [])], env=env, stdout=log, stderr=subprocess.STDOUT)
+            subprocess.Popen([godot, "--path", str(ROOT), *(["--editor"] if args.command == "editor" else []),
+                              *([ROUTES[args.route]["scene"]] if args.route else [])], env=env, stdout=log, stderr=subprocess.STDOUT)
         print(f"已启动；日志: {log_path}")
         return
     out = new_out(args.command)
     before = inventory()
-    report = {"schema": 1, "command": args.command, "started": time.time(), "source": before, "source_hash": digest(before), "passed": False}
+    report = {"schema": 2, "command": args.command, "routes": list(routes), "started": time.time(), "source": before, "source_hash": digest(before), "passed": False}
     try:
         from check_dependencies import check as check_dependencies
         check_dependencies()

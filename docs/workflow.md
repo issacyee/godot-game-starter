@@ -8,7 +8,7 @@
 
 ## 2. 开始任务
 
-1. 阅读 [导航](README.md)、[简报](BRIEF.md)、[能力清单](CAPABILITIES.md) 和 [范围与限制](STATUS.md)。新游戏按 [阶段路径](deriving-a-game.md) 推进。
+1. 阅读 [导航](README.md)、[简报](BRIEF.md)、[能力清单](CAPABILITIES.md) 和 [范围与限制](STATUS.md)。新游戏先确认 [2D／3D 路线](ROUTES.md)，再按 [阶段路径](deriving-a-game.md) 推进；模板默认 2D 不替代设计确认。
 2. 检查 Git、编辑器会话与未保存状态，保留人工修改和无关未跟踪文件。先读相关实现、引用和测试，再改动。
 3. 沿用 [当前契约](CONTRACTS.md)，按需阅读 [架构](guides/game-architecture.md)、[编码](guides/clean-code.md) 和 [测试](guides/testing.md) 指南。
 4. 区分设计意图、实现事实、缺陷和待验证假设；现有行为不自动正确，目标规范也不代表已实现。
@@ -18,7 +18,7 @@
 实现前简要写清下面内容，可在任务说明中表达；重要模块或跨模块语义再使用 [契约模板](contracts/module-template.md)，不为每个私有函数建文档。
 
 ```text
-目标体验／问题：
+目标体验／问题与已确认的 2D／3D 路线：
 范围与不做的事：
 状态所有者、不变量、输入／请求：
 接受、拒绝、事实事件与消费顺序：
@@ -53,7 +53,7 @@ $delivery = (Get-Content artifacts/latest-export.json | ConvertFrom-Json).direct
 python tools/dev.py verify $delivery
 ```
 
-`export` 需要依赖、Godot AI 编辑器连接和 Windows 交互桌面，会短暂聚焦窗口。缺环境、必需跳过、零测试、失败或过期证据都不能报通过；不删除断言、放大容差或重试刷绿。纯文档改动检查链接和一致性即可，如实列出未运行项。
+`starter-project.json` 登记 template 时验收两条路线，派生为 2d／3d 后只验收所选路线及公共部分。`export` 需要依赖、Godot AI 编辑器连接和 Windows 交互桌面，会短暂聚焦窗口。缺环境、必需跳过、零测试、失败或过期证据都不能报通过；不删除断言、放大容差或重试刷绿。纯文档改动检查链接和一致性即可，如实列出未运行项。
 
 交付说明：改了什么及受影响契约；参数与体验／恢复基线入口；实际运行命令、结果和报告目录；技术视觉及性能各自范围；限制与下一步。无需把这些单次结果写入共享指南。未经授权不提交、推送、发布、reset、clean 或删除无关文件。
 

@@ -1,0 +1,116 @@
+[gd_scene format=3 uid="uid://6qp1bu5jyr32"]
+
+[ext_resource type="Script" uid="uid://bewx4vp0m30ry" path="res://scripts/main_2d.gd" id="1_6i4sw"]
+[ext_resource type="Resource" uid="uid://be1ldfk1u4pk4" path="res://tuning/baseline_2d.tres" id="2_an5d2"]
+[ext_resource type="Script" uid="uid://cwg2phlueqh4o" path="res://scripts/player_2d.gd" id="3_00ys0"]
+[ext_resource type="Theme" uid="uid://is1naqaofqov" path="res://assets/interface.tres" id="4_4bxcq"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8rt3n"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nh41s"]
+size = Vector2(20, 400)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bhn1q"]
+size = Vector2(20, 400)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fsdrk"]
+size = Vector2(600, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cmpsd"]
+size = Vector2(600, 20)
+
+[node name="Main2D" type="Node" unique_id=1663563863]
+script = ExtResource("1_6i4sw")
+tuning = ExtResource("2_an5d2")
+
+[node name="World" type="Node2D" parent="." unique_id=2052317475]
+process_mode = 1
+position = Vector2(480, 420)
+
+[node name="Player" type="CharacterBody2D" parent="World" unique_id=2054718494]
+collision_mask = 2
+motion_mode = 1
+script = ExtResource("3_00ys0")
+
+[node name="Body" type="Polygon2D" parent="World/Player" unique_id=1585018686]
+color = Color(0.21960784, 0.7411765, 0.972549, 1)
+polygon = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
+
+[node name="Collider" type="CollisionShape2D" parent="World/Player" unique_id=1002540712]
+shape = SubResource("RectangleShape2D_8rt3n")
+
+[node name="Target" type="Node2D" parent="World" unique_id=1274657804]
+position = Vector2(150, 0)
+
+[node name="Body" type="Polygon2D" parent="World/Target" unique_id=945794006]
+color = Color(0.9843137, 0.7490196, 0.14117648, 1)
+polygon = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
+
+[node name="Floor" type="Polygon2D" parent="World" unique_id=928789657]
+z_index = -1
+color = Color(0.2, 0.25490198, 0.33333334, 1)
+polygon = PackedVector2Array(-300, -200, 300, -200, 300, 200, -300, 200)
+
+[node name="Left" type="StaticBody2D" parent="World" unique_id=807676913]
+position = Vector2(-300, 0)
+collision_layer = 2
+
+[node name="Collider" type="CollisionShape2D" parent="World/Left" unique_id=39148603]
+shape = SubResource("RectangleShape2D_nh41s")
+
+[node name="Right" type="StaticBody2D" parent="World" unique_id=948809492]
+position = Vector2(300, 0)
+collision_layer = 2
+
+[node name="Collider" type="CollisionShape2D" parent="World/Right" unique_id=1502334942]
+shape = SubResource("RectangleShape2D_bhn1q")
+
+[node name="Front" type="StaticBody2D" parent="World" unique_id=1491631910]
+position = Vector2(0, -200)
+collision_layer = 2
+
+[node name="Collider" type="CollisionShape2D" parent="World/Front" unique_id=770671828]
+shape = SubResource("RectangleShape2D_fsdrk")
+
+[node name="Back" type="StaticBody2D" parent="World" unique_id=1938689362]
+position = Vector2(0, 200)
+collision_layer = 2
+
+[node name="Collider" type="CollisionShape2D" parent="World/Back" unique_id=202645803]
+shape = SubResource("RectangleShape2D_cmpsd")
+
+[node name="Interface" type="CanvasLayer" parent="." unique_id=1379150805]
+
+[node name="Panel" type="PanelContainer" parent="Interface" unique_id=2051713625]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 650.0
+offset_bottom = 220.0
+theme = ExtResource("4_4bxcq")
+
+[node name="Rows" type="VBoxContainer" parent="Interface/Panel" unique_id=1780440781]
+layout_mode = 2
+
+[node name="Status" type="Label" parent="Interface/Panel/Rows" unique_id=2136952911]
+layout_mode = 2
+text = "Godot 2D 起步模板"
+
+[node name="Start" type="Button" parent="Interface/Panel/Rows" unique_id=201463867]
+layout_mode = 2
+focus_mode = 0
+text = "进入（Enter）"
+
+[node name="Pause" type="Button" parent="Interface/Panel/Rows" unique_id=997843030]
+layout_mode = 2
+focus_mode = 0
+text = "暂停（Esc）"
+
+[node name="Restart" type="Button" parent="Interface/Panel/Rows" unique_id=1581483097]
+layout_mode = 2
+focus_mode = 0
+text = "重开（R）"
+
+[connection signal="pressed" from="Interface/Panel/Rows/Start" to="." method="_on_start_pressed"]
+[connection signal="pressed" from="Interface/Panel/Rows/Pause" to="." method="_on_pause_pressed"]
+[connection signal="pressed" from="Interface/Panel/Rows/Restart" to="." method="_on_restart_pressed"]

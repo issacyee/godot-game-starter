@@ -3,7 +3,7 @@ extends RefCounted
 ## 仅 dev 且显式指定新工作产物目录时启用。只读状态；不提供状态注入。
 
 var capture_requested: bool = false
-var _scene: StarterMain
+var _scene: StarterSession
 var _directory: String = ""
 var _sequence: int = 0
 var _captures: int = 0
@@ -11,7 +11,7 @@ var _seconds: float = 0.0
 var _capturing: bool = false
 
 
-func _init(scene: StarterMain) -> void:
+func _init(scene: StarterSession) -> void:
 	_scene = scene
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var index: int = args.find("--probe-directory")
@@ -53,9 +53,9 @@ func advance(delta: float) -> void:
 func _capture() -> void:
 	_capturing = true
 	await RenderingServer.frame_post_draw
-	var camera: Camera3D = _scene.get_node("World/Camera") as Camera3D
-	var actor: Vector2 = camera.unproject_position(_scene.player.global_position)
-	var target: Vector2 = camera.unproject_position(_scene.target.global_position)
+	var points: Dictionary = _scene.capture_points()
+	var actor: Vector2 = points.actor
+	var target: Vector2 = points.target
 	var image: Image = _scene.get_viewport().get_texture().get_image()
 	_captures += 1
 	var stem: String = _directory.path_join("frame-%d" % _captures)

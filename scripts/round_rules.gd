@@ -1,6 +1,6 @@
 class_name RoundRules
 extends RefCounted
-## 只拥有回合规则；物理位置归 CharacterBody3D，不在此复制。
+## 只拥有回合规则；物理位置归具体 CharacterBody2D／3D，不在此复制。
 
 signal activated
 

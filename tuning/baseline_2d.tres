@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="StarterTuning" format=3 uid="uid://be1ldfk1u4pk4"]
+
+[ext_resource type="Script" uid="uid://irb6jfiabrp7" path="res://scripts/starter_tuning.gd" id="1_0mo0t"]
+
+[resource]
+script = ExtResource("1_0mo0t")
+route = "2d"
+move_speed = 200.0
+interaction_reach = 75.0

@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import struct
 import zlib
+from routes import validate_sample
 
 
 def png(path: Path):
@@ -48,9 +49,11 @@ def ratio(image, point, predicate):
     return sum(predicate(*v) for v in values)/len(values)
 
 
-def verify_frames(directory: Path) -> dict:
+def verify_frames(directory: Path, route: str) -> dict:
     frames=[png(directory/f"frame-{n}.png") for n in [1,2,3]]
     states=[json.loads((directory/f"frame-{n}.json").read_text(encoding="utf8")) for n in [1,2,3]]
+    for state in states:
+        validate_sample(state, route)
     blue=lambda r,g,b: b>r*1.4 and g>r*1.3 and b>60
     gold=lambda r,g,b: r>b*1.5 and g>b*1.3 and r>60
     results={"player_visible_start":ratio(frames[0],states[0]["actor_pixel"],blue),

@@ -7,9 +7,10 @@
 | 能力 | 实现／入口 |
 | --- | --- |
 | 开发与审查约定 | [工作流](workflow.md)、[阶段路径](deriving-a-game.md)、[编码](guides/clean-code.md)、[架构](guides/game-architecture.md) |
-| 规则与状态所有权 | `RoundRules` 负责规则，`CharacterBody3D` 唯一拥有位置 |
-| 逻辑／表现分离 | `StarterMain` 协调，`StarterPresentation` 只读投影；重复呈现／视图隔离回归 |
-| 3D、键盘、UI、生命周期 | Camera3D、InputMap、Control/Container、SceneTree 暂停 |
+| 双路线与派生入口 | [路线选择](ROUTES.md)；默认 2D，`starter-project.json` 登记 template／2d／3d |
+| 规则与状态所有权 | `RoundRules` 负责规则，各路线 CharacterBody2D／CharacterBody3D 唯一拥有位置 |
+| 逻辑／表现分离 | `StarterSession` 共用生命周期、`StarterMain2D`／`StarterMain` 空间接线；两套只读表现与回归 |
+| 2D／3D、键盘、UI、生命周期 | Node2D 俯视／Camera3D 场地、InputMap、Control/Container、SceneTree 暂停 |
 | 结构化资源编辑 | Godot AI；`tools/ai.py`；排除 testing、关闭遥测 |
 | 集中调参与实验预设 | Resource、Inspector、独立有效值；[调参导航](../tuning/README.md) |
 | 单元与场景测试 | GdUnit4，新进程及隔离用户目录；`tools/dev.py test` |
@@ -21,7 +22,7 @@
 
 ## 按需扩展
 
-其他平台、手柄／触摸／重绑、玩家设置、存档／完整快照、音频、动画、粒子、导航、多语言、性能预算、持久日志、崩溃留存和正式签名发行均未实现。
+其他平台、横版跳跃、TileMapLayer／TileSet、复杂镜头、手柄／触摸／重绑、玩家设置、存档／完整快照、音频、动画、粒子、导航、多语言、性能预算、持久日志、崩溃留存和正式签名发行均未实现。
 
 扩展前明确需求、状态所有权和验证方式；设置与进度分开，字体与素材补充来源和许可，性能在目标设备独立测量。
 

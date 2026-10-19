@@ -16,6 +16,21 @@ func test_tuning_validation_and_value_isolation() -> void:
 	assert_array(Array(tuning.validate())).has_size(2)
 
 
+func test_route_parameters_are_validated_without_unit_confusion() -> void:
+	var tuning := Tuning.new()
+	assert_array(Array(tuning.validate_for("2d"))).is_not_empty()
+	tuning.route = "2d"
+	assert_array(Array(tuning.validate())).is_not_empty()
+	tuning.move_speed = 200.0
+	tuning.interaction_reach = 75.0
+	assert_array(Array(tuning.validate_for("2d"))).is_empty()
+	assert_array(Array(tuning.validate_for("3d"))).has_size(1)
+	tuning.move_speed = INF
+	assert_array(Array(tuning.validate())).has_size(1)
+	tuning.route = "unknown"
+	assert_array(Array(tuning.validate())).is_not_empty()
+
+
 func test_diagnostics_bounded_and_no_mutable_escape() -> void:
 	var journal := Journal.new(2)
 	journal.record(&"start", 0)
