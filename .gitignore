@@ -4,3 +4,4 @@ artifacts/
 reports/
 *.tmp
 __pycache__/
+.idea/
