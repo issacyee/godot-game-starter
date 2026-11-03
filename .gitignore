@@ -6,3 +6,4 @@ reports/
 __pycache__/
 .idea/
 .openidea/
+/.pi/
