@@ -5,3 +5,4 @@ reports/
 *.tmp
 __pycache__/
 .idea/
+.openidea/
