@@ -9,6 +9,7 @@
 | 配置环境、运行、测试、导出 | [项目 README](../README.md) |
 | 开始开发或交接任务 | [工作流](workflow.md)、[AI 工作入口](../AGENTS.md) |
 | 从模板建立游戏 | [从零构建游戏](deriving-a-game.md)、[模板定制](CUSTOMIZATION.md) |
+| 用派生项目验证骨架并回流 | [本地验证沙盒](guides/validation-lab.md) |
 | 明确目标与范围 | [简报](BRIEF.md)、[能力清单](CAPABILITIES.md) |
 | 划分规则、协调、物理和表现 | [游戏架构](guides/game-architecture.md) |
 | 编码与审查 | [编码指南](guides/clean-code.md) |

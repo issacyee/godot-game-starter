@@ -89,4 +89,4 @@ python tools/dev.py verify $delivery
 
 [文档导航](docs/README.md) · [工作流](docs/workflow.md) · [游戏架构](docs/guides/game-architecture.md) · [编码指南](docs/guides/clean-code.md) · [测试指南](docs/guides/testing.md)
 
-[AI 工作入口](AGENTS.md) · [调参](tuning/README.md) · [模块契约](docs/CONTRACTS.md) · [能力清单](docs/CAPABILITIES.md) · [范围与限制](docs/STATUS.md) · [故障排查](docs/TROUBLESHOOTING.md) · [许可说明](docs/LICENSES.md)
+[AI 工作入口](AGENTS.md) · [调参](tuning/README.md) · [模块契约](docs/CONTRACTS.md) · [能力清单](docs/CAPABILITIES.md) · [范围与限制](docs/STATUS.md) · [故障排查](docs/TROUBLESHOOTING.md) · [许可说明](docs/LICENSES.md) · [本地验证沙盒](docs/guides/validation-lab.md)
