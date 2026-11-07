@@ -20,6 +20,12 @@ jobs:
           if (!$expected -or (Get-FileHash $archive -Algorithm SHA512).Hash.ToLower() -ne $expected) { throw '引擎校验失败' }
           Expand-Archive $archive (Join-Path $directory 'engine')
           "STARTER_GODOT=$directory/engine/Godot_v4.7-stable_win64_console.exe" >> $env:GITHUB_ENV
+      - name: 文档与第三方树静态检查
+        run: |
+          python tools/check_docs.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/check_dependencies.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: 独立进程测试与失败判定自证
         run: |
           python tools/dev.py test

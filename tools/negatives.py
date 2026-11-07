@@ -19,7 +19,7 @@ FIXTURES = {
 
 def check(out: Path, godot: str) -> dict:
     project = out / "project"
-    stage_project(project)
+    stage_project(project, include_tests=True)
     shutil.rmtree(project / "tests")
     (project / "tests/unit").mkdir(parents=True)
     result = {}

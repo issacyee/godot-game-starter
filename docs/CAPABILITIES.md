@@ -12,8 +12,8 @@
 | 3D、键盘、UI、生命周期 | Camera3D、InputMap、Control/Container、SceneTree 暂停 |
 | 结构化资源编辑 | Godot AI；`tools/ai.py`；排除 testing、关闭遥测 |
 | 集中调参与实验预设 | Resource、Inspector、独立有效值；[调参导航](../tuning/README.md) |
-| 单元与场景测试 | GdUnit4，新进程及隔离用户目录；`tools/dev.py test` |
-| 失败判定与产物复核 | `negative`、`export`、`verify`；源码／产品／证据 SHA-256 |
+| 单元与场景测试 | GdUnit4，新进程及隔离用户目录；`tools/dev.py test`，可分层 |
+| 失败判定与产物复核 | `negative`、`build`、`prove`、`export`、`verify`；源码／产品／证据 SHA-256 |
 | 简体中文界面 | Godot 内置默认字体与原生回退，不附加字体文件 |
 | 有界内存诊断 | `DiagnosticJournal`；白名单事件、深复制、参数身份，不上传 |
 | Windows dev 导出 | 嵌入构建身份、许可盘点、OS 键盘与局部像素检查 |

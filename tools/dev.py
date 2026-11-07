@@ -18,6 +18,15 @@ sys.stderr.reconfigure(encoding="utf-8")
 
 ROOT = Path(__file__).resolve().parents[1]
 IGNORED = {".git", ".godot", ".tools", "artifacts", "reports", "__pycache__"}
+# 测试/产品副本排除开发目录；新增内容目录默认会被复制。
+STAGE_IGNORE = [
+    ".git", ".godot", ".tools", "artifacts", "reports", "__pycache__",
+    "docs", "tools", ".github", ".idea", ".openidea", ".pi",
+    "README.md", "AGENTS.md", ".gitignore", ".gitattributes",
+    "third-party-inventory.json", "dependencies.lock.json",
+]
+STAGE_DROP_ADDONS = ("godot_ai", "starter_editor")
+STAGE_REQUIRED = ("project.godot", "scripts", "scenes", "tuning", "assets")
 
 
 def inventory(root: Path = ROOT) -> dict[str, str]:
@@ -109,11 +118,24 @@ def validate_report(report_dir: Path, started: float, expected: set[str], code: 
             "report": str(reports[0]), "sha256": hashlib.sha256(reports[0].read_bytes()).hexdigest()}
 
 
-def stage_project(destination: Path) -> None:
-    destination.mkdir()
-    for folder in ["scripts", "scenes", "tuning", "assets", "tests"]:
-        shutil.copytree(ROOT / folder, destination / folder)
-    shutil.copytree(ROOT / "addons/gdUnit4", destination / "addons/gdUnit4")
+def stage_project(destination: Path, *, include_tests: bool = False) -> None:
+    if destination.exists():
+        raise RuntimeError(f"staging 目标已存在: {destination}")
+    # 复制全部内容，排除开发目录；新增的 audio/data/levels 等目录不会静默丢失。
+    shutil.copytree(ROOT, destination, ignore=shutil.ignore_patterns(*STAGE_IGNORE))
+    for name in STAGE_DROP_ADDONS:
+        addon = destination / "addons" / name
+        if addon.exists():
+            shutil.rmtree(addon)
+    if include_tests:
+        if not (destination / "addons/gdUnit4/plugin.cfg").is_file():
+            raise RuntimeError("staging 缺少 addons/gdUnit4")
+    else:
+        shutil.rmtree(destination / "tests")
+        shutil.rmtree(destination / "addons/gdUnit4")
+    for required in STAGE_REQUIRED:
+        if not (destination / required).exists():
+            raise RuntimeError(f"staging 缺少必需内容: {required}")
     # 只修改隔离副本的引导配置，不改任何 .tscn/.tres；核心链无 Godot AI 或编辑器依赖。
     project = (ROOT / "project.godot").read_text(encoding="utf8")
     project = re.sub(r'^_mcp_game_helper=.*\n', '', project, flags=re.M)
@@ -142,14 +164,17 @@ def run_layer(project: Path, layer: str, out: Path, godot: str, timeout: float =
     return result
 
 
-def test(out: Path, godot: str) -> dict:
+def test(out: Path, godot: str, layers: list[str] | None = None) -> dict:
+    selected = list(dict.fromkeys(layers or ["unit", "scene"]))
+    if not selected or any(layer not in {"unit", "scene"} for layer in selected):
+        raise RuntimeError(f"无效测试层: {selected}")
     project = out / "project"
-    stage_project(project)
+    stage_project(project, include_tests=True)
     env = isolated_env(out / "import-profile")
     code = execute([godot, "--headless", "--path", str(project), "--editor", "--import"], out / "import.log", env)
     if code != 0 or re.search(r"SCRIPT ERROR:|Parse Error:|^ERROR:", (out / "import.log").read_text(encoding="utf8"), re.M):
         raise RuntimeError("独立项目导入失败")
-    return {layer: run_layer(project, layer, out / layer, godot) for layer in ["unit", "scene"]}
+    return {layer: run_layer(project, layer, out / layer, godot) for layer in selected}
 
 
 def new_out(name: str) -> Path:
@@ -161,13 +186,19 @@ def new_out(name: str) -> Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="项目内统一验证入口")
-    parser.add_argument("command", choices=["test", "negative", "editor", "run", "export", "verify"])
+    parser.add_argument("command", choices=["test", "negative", "build", "prove", "verify-ai", "export", "verify", "editor", "run"])
     parser.add_argument("path", nargs="?")
+    parser.add_argument("--layer", choices=["unit", "scene"], action="append", dest="layers",
+                        help="test 仅运行指定层；可重复，默认 unit+scene")
     args = parser.parse_args()
     if args.command == "verify":
+        if not args.path:
+            parser.error("verify 需要 export 目录")
         from delivery import verify
         verify(Path(args.path).resolve())
         return
+    if args.command == "prove" and not args.path:
+        parser.error("prove 需要 build 目录")
     godot = engine()
     if args.command in ["editor", "run"]:
         env = isolated_env(ROOT / ".tools/profile")
@@ -189,10 +220,19 @@ def main() -> None:
         from check_dependencies import check as check_dependencies
         check_dependencies()
         if args.command == "test":
-            report["result"] = test(out, godot)
+            report["result"] = test(out, godot, args.layers)
         elif args.command == "negative":
             from negatives import check
             report["result"] = check(out, godot)
+        elif args.command == "build":
+            from delivery import build
+            report["result"] = build(out, godot)
+        elif args.command == "prove":
+            from delivery import prove
+            report["result"] = prove(Path(args.path).resolve(), out)
+        elif args.command == "verify-ai":
+            from verify_ai import check
+            report["result"] = check(out)
         elif args.command == "export":
             from delivery import export
             report["result"] = export(out, godot)

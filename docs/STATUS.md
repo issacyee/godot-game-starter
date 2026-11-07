@@ -12,9 +12,10 @@
 
 验证结果由使用者在自己的环境生成，不在共享文档中维护机器配置或历史通过记录。`artifacts/` 不入库，也不随模板复制。
 
-- `artifacts/latest-test.json`、`latest-negative.json`、`latest-export.json` 定位相应输出目录；文件仅在对应命令成功时更新，可能仍指向旧结果。
-- 完整导出目录含 `result.json`、`delivery.json`、GdUnit4 报告、日志、dev 包和平台检查文件。
-- 仅 `passed=true` 且 `python tools/dev.py verify <export目录>` 通过的完整目录可对应当前源码；源码变化后必须重新验证。
+- `artifacts/latest-test.json`、`latest-negative.json`、`latest-build.json`、`latest-prove.json`、`latest-verify-ai.json`、`latest-export.json` 定位相应输出目录；文件仅在对应命令成功时更新，可能仍指向旧结果。
+- `build` 目录含 `result.json`、`build.json`、dev 包和身份文件；`prove` 目录含 `platform.json`、`prove.json` 与局部帧证据。
+- 完整导出目录含 `result.json`、`delivery.json`、GdUnit4 报告、日志、dev 包、build/prove 与平台检查文件。
+- 仅 `passed=true` 且 `python tools/dev.py verify <export目录>` 通过的完整目录可对应当前源码；`build`/`prove` 通过不等于完整交付，源码变化后必须重新验证。
 
 ## 限制
 

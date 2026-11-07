@@ -30,7 +30,7 @@ python tools/dev.py run
 
 也可用该引擎直接打开 `project.godot`。`STARTER_GODOT` 优先于可选的 `.tools/local.json`（格式：`{"godot":"引擎绝对路径"}`）；工具不读取 `GODOT_PATH`，避免误用其他版本。
 
-需要 Godot AI 或导出时，再显式安装开发依赖：
+需要 Godot AI、实际包或完整导出时，再显式安装对应开发依赖：
 
 ```powershell
 python tools/setup.py ai           # 联网，只安装到 .tools/venv
@@ -38,23 +38,37 @@ python tools/setup.py templates    # 联网，下载约 1.28 GB，仅展开 Wind
 python tools/dev.py editor         # 使用项目隔离 profile，不改全局客户端配置
 ```
 
-## 测试与导出
+## 测试、构建与导出
+
+快速开发路径：
 
 ```powershell
 python tools/check_docs.py
+python tools/dev.py test --layer unit
 python tools/dev.py test
 python tools/dev.py negative
+python tools/dev.py build
+$build = (Get-Content artifacts/latest-build.json | ConvertFrom-Json).directory
+python tools/dev.py prove $build
+```
+
+- `test`：新 Godot 进程运行 unit／scene 测试，不需要 Godot AI、网络或打开的编辑器。`--layer unit|scene` 可只跑一层，默认两层。
+- `negative`：验证断言、解析、挂起、零测试和报告故障等情况会被拒绝。
+- `build`：headless 生成实际 dev 包，不需要 Godot AI；需要导出模板和 Godot 4.7。
+- `prove`：对已有 build 执行 Windows 真实输入、只读探针和局部像素检查，不需要 Godot AI。**需要交互桌面，会暂时聚焦游戏窗口，请勿同时操作。**
+
+完整交付门禁（发布前执行）：
+
+```powershell
 python tools/dev.py export
 $delivery = (Get-Content artifacts/latest-export.json | ConvertFrom-Json).directory
 python tools/dev.py verify $delivery
 ```
 
-- `test`：新 Godot 进程运行 unit／scene 测试，不需要 Godot AI、网络或打开的编辑器。
-- `negative`：验证断言、解析、挂起、零测试和报告故障等情况会被拒绝。
 - `export`：要求 Godot AI 编辑器已连接；依次执行接入检查、测试、负向检查、实际导出、Windows 键盘和局部像素检查。**需要交互桌面，会暂时聚焦游戏窗口，请勿同时操作。**
 - `verify`：只读复核当前源码和完整 export 目录。源码变化后需重新导出，不能沿用旧报告。
 
-产物在 `artifacts/` 的独立目录，失败记录不覆盖。`latest-export.json` 仅用于定位；包内 `package/starter.exe`、`.pck` 和 `licenses/` 应一起保留。当前只生成未签名 dev 包。
+产物在 `artifacts/` 的独立目录，失败记录不覆盖。`latest-test.json`、`latest-negative.json`、`latest-build.json`、`latest-prove.json`、`latest-export.json` 仅用于定位；包内 `package/starter.exe`、`.pck` 和 `licenses/` 应一起保留。当前只生成未签名 dev 包。
 
 ## Godot AI
 

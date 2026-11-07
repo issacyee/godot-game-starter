@@ -42,18 +42,25 @@
 
 ## 5. 验证与交付
 
-按 [测试指南](guides/testing.md) 从快到慢执行。常用入口：
+按 [测试指南](guides/testing.md) 从快到慢执行。内环用 `test --layer`；涉及实际产物先 `build`，需要平台输入或像素证据再 `prove`；发布前才执行完整 `export` 与 `verify`。
 
 ```powershell
 python tools/check_docs.py
+python tools/dev.py test --layer unit
 python tools/dev.py test
 python tools/dev.py negative
+python tools/dev.py build
+$build = (Get-Content artifacts/latest-build.json | ConvertFrom-Json).directory
+python tools/dev.py prove $build
+```
+
+```powershell
 python tools/dev.py export
 $delivery = (Get-Content artifacts/latest-export.json | ConvertFrom-Json).directory
 python tools/dev.py verify $delivery
 ```
 
-`export` 需要依赖、Godot AI 编辑器连接和 Windows 交互桌面，会短暂聚焦窗口。缺环境、必需跳过、零测试、失败或过期证据都不能报通过；不删除断言、放大容差或重试刷绿。纯文档改动检查链接和一致性即可，如实列出未运行项。
+`build` 需要导出模板，不需要 Godot AI 或交互桌面；`prove` 需要 Windows 交互桌面，会短暂聚焦窗口；`export` 还需要依赖与 Godot AI 编辑器连接。缺环境、必需跳过、零测试、失败或过期证据都不能报通过；不删除断言、放大容差或重试刷绿。纯文档改动检查链接和一致性即可，如实列出未运行项。单独 `build`/`prove` 是分层证据，不冒充完整 `export`/`verify`。
 
 交付说明：改了什么及受影响契约；参数与体验／恢复基线入口；实际运行命令、结果和报告目录；技术视觉及性能各自范围；限制与下一步。无需把这些单次结果写入共享指南。未经授权不提交、推送、发布、reset、clean 或删除无关文件。
 

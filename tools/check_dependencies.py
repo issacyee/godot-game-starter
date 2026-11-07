@@ -13,6 +13,19 @@ def check() -> None:
             if path.is_file():
                 actual[path.relative_to(ROOT).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
     if expected != actual:
+        changed = [relative for relative in expected if actual.get(relative) != expected[relative]]
+        line_ending_only = (
+            set(expected) == set(actual)
+            and bool(changed)
+            and all(
+                (ROOT / relative).is_file()
+                and hashlib.sha256((ROOT / relative).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+                == expected[relative]
+                for relative in changed
+            )
+        )
+        if line_ending_only:
+            raise RuntimeError("第三方树为 CRLF 行尾；请按 .gitattributes 重新检出后再验证")
         raise RuntimeError("第三方树变化；复核发行、许可与有意省略项后显式更新锁，不自动修复")
     print(f"第三方树锁一致：{len(actual)} 个文件")
 

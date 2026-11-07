@@ -28,13 +28,17 @@
 
 ```powershell
 python tools/check_docs.py
+python tools/dev.py test --layer unit
 python tools/dev.py test
 python tools/dev.py negative
+python tools/dev.py build
+$build = (Get-Content artifacts/latest-build.json | ConvertFrom-Json).directory
+python tools/dev.py prove $build
 python tools/dev.py export
 $delivery = (Get-Content artifacts/latest-export.json | ConvertFrom-Json).directory
 python tools/dev.py verify $delivery
 ```
 
-`export` 需要 Godot AI 编辑器连接、匹配的导出模板与 Windows 交互桌面。新增平台或正式发布流程需建立对应验证，不复用示例的通过记录。
+`build` 需要匹配的导出模板，不需要 Godot AI；`prove` 需要 Windows 交互桌面；`export` 还需要 Godot AI 编辑器连接。新增平台或正式发布流程需建立对应验证，不复用示例的通过记录；单独 `build`/`prove` 不冒充完整交付。
 
 保留 MIT 版权声明和适用的第三方许可；新增素材或依赖时更新 [许可说明](LICENSES.md) 及相应锁文件。

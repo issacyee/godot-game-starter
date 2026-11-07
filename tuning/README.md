@@ -12,6 +12,6 @@
 
 Resource 导出范围只是 Inspector 提示，运行仍执行完整校验；非法、非有限或缺失配置明确失败，不静默回退。共享 Resource 是定义，不存暂停／分数／位置／冷却等实例状态。读取值投影后本局冻结，不热重载。
 
-体验基线：`python tools/dev.py run`。慢速实验：直接运行 dev 导出包 `starter.exe -- --preset slow`，或用 Godot `--path . -- --preset slow`；去掉参数恢复基线。只支持显式 slow，不扫描未知本地覆盖，未知或非 dev 预设拒绝。实验不改基线、无玩家设置或存档写入。改参数后重启、`test` 和 `export`，不能复用旧报告。
+体验基线：`python tools/dev.py run`。慢速实验：直接运行 dev 导出包 `starter.exe -- --preset slow`，或用 Godot `--path . -- --preset slow`；去掉参数恢复基线。只支持显式 slow，不扫描未知本地覆盖，未知或非 dev 预设拒绝。实验不改基线、无玩家设置或存档写入。改参数后重启、`test` 和 `build`，发布前再 `export`，不能复用旧报告。
 
 引擎工程选择在 `project.godot`（Compatibility、960×640）；实体几何为示例结构不变量，不伪装成安全滑杆。未来确认性能预算后独立测量，不以截图耗时作 GPU／帧率结论。玩家设置将来独立保存，不能反写设计基线。

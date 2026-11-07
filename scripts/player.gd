@@ -14,3 +14,4 @@ func reset() -> void:
 	position = Vector3(0.0, 0.5, 0.0)
 	velocity = Vector3.ZERO
 	direction = Vector2.ZERO
+	reset_physics_interpolation()
